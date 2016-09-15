@@ -196,7 +196,7 @@ SWIGRUNTIME const char *SWIG_duk_typename(duk_context *ctx, duk_idx_t idx)
 
 SWIGINTERN duk_ret_t JS_veto_set_variable(duk_context *ctx)
 {
-  duk_push_string(ctx, "Tried to write read-only variable.");
+  duk_push_string(ctx, "Tried to write a read-only variable.");
   duk_throw(ctx);
   return duk_get_top(ctx); /* We should never get here, but stifle warning. */
 }
@@ -224,13 +224,6 @@ swig_duk_install_properties(
   }
 }
 
-/* Helper function to get the classes prototype from the register */
-SWIGINTERN void SWIG_duk_get_class_prototype(duk_context *ctx,const char *cname)
-{
-  duk_get_prop_string(ctx, -1, cname);  /* get the name */
-}
-
-
 /* -----------------------------------------------------------------------------
  * Class/structure conversion fns
  * ----------------------------------------------------------------------------- */
@@ -254,9 +247,13 @@ SWIGRUNTIME duk_ret_t SWIG_duk_NewPointerObj(duk_context *ctx,void *ptr,swig_typ
   return 1;
 }
 
+<<<<<<< HEAD
+SWIGRUNTIME int SWIG_duk_ConvertPtr(duk_context *ctx,void *object,void **ptr,swig_type_info *type,int flags)
+=======
 /* takes a object from the duk stack & converts it into an object of the correct type
  (if possible) */
 SWIGRUNTIME int SWIG_duk_ConvertPtr(duk_context *ctx, duk_idx_t idx,void **ptr,swig_type_info *type,int flags)
+>>>>>>> exio/dukswig
 {
   duk_size_t sz;
   swig_duk_userdata *usr;
