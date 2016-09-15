@@ -22,16 +22,6 @@ extern "C" {
 #define SWIG_DUK_CHAR    6
 
 /* Structure for variable linking table */
-typedef struct {
-  const char *name;
-  duk_c_function get;
-  duk_c_function set;
-} swig_duk_var_info;
-
-typedef struct swig_duk_method {
-  const char *name;
-  duk_c_function func;
-} swig_duk_method;
 
 typedef struct {
   const char *name;
@@ -46,17 +36,6 @@ typedef struct {
   bool own;  /* true if owned & must be destroyed */
   void *ptr;
 } swig_duk_userdata;
-
-/* this is the struct for wrapping arbitrary packed binary data
-(currently it is only used for member function pointers)
-the data ordering is similar to swig_duk_userdata, but it is currently not possible
-to tell the two structures apart within SWIG, other than by looking at the type
-*/
-typedef struct {
-  swig_type_info   *type;
-  bool     own;  /* true if owned & must be destroyed */
-  char data[1];  /* arbitary amount of data */    
-} swig_duk_rawdata;
 
 SWIGRUNTIME duk_ret_t _wrap_SwigObject_disown(duk_context *ctx)
 {
