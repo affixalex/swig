@@ -36,7 +36,7 @@ int SWIG_AsVal_dec(bool)(void *obj, bool *val)
 SWIGINTERNINLINE void *
   SWIG_From_dec(int)(int value)
 {
-	duk_idx_t idx = duk_push_int(ctx, value);
+	duk_idx_t idx = duk_push_int(ctx, $argnum);
 	return duk_get_heapptr(ctx, idx);
 }
 }
@@ -75,7 +75,7 @@ SWIGINTERNINLINE void *
 SWIG_From_dec(unsigned long)(unsigned long value)
 {
   return (value > LONG_MAX) ?
-    JSValueMakeNumber(context, value) : JSValueMakeNumber(context, %numeric_cast(value,long));
+    duk_push_number(ctx, value) : duk_push_number(ctx, %numeric_cast(value,long));
 }
 }
 

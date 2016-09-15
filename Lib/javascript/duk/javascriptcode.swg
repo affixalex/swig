@@ -199,13 +199,8 @@ static duk_ret_t $jswrapper(duk_context *ctx)
   #ifdef SWIGRUNTIME_DEBUG
   printf("Called js_getter $jswrapper...\n");
   #endif
-  /* The object must be on the top of the value stack on entry. */
   
   $jslocals
-  
-  duk_push_this(ctx);
-  void *thisObject = duk_get_heapptr(ctx, -1);
-  
   $jscode
 
   return 1;
@@ -223,11 +218,6 @@ static duk_ret_t $jswrapper(duk_context *ctx)
 static duk_ret_t $jswrapper(duk_context *ctx)
 {
   /* FRAGMENT: js_setter */
-  /* The value must be on the stack top at entry. */
-  duk_push_this(ctx);
-  void *thisObject = duk_get_heapptr(ctx, -1);
-  duk_pop(ctx);
-  duk_idx_t value = -1;
   
   $jslocals
   $jscode
@@ -254,8 +244,6 @@ static duk_ret_t $jswrapper(duk_context *ctx)
     duk_push_string(ctx, "Illegal numargs for $jswrapper. Expected $jsargcount");
     duk_throw(ctx);
   }
-  duk_push_this(ctx);
-  void *thisObject = duk_get_heapptr(ctx, -1);
 
   $jslocals
   $jscode
