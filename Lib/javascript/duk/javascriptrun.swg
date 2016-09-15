@@ -33,16 +33,6 @@ typedef struct swig_duk_method {
   duk_c_function func;
 } swig_duk_method;
 
-/* Constant information structure */
-typedef struct {
-  int type;
-  char *name;
-  long lvalue;
-  double dvalue;
-  void *pvalue;
-  swig_type_info **ptype;
-} swig_duk_const_info;
-
 typedef struct {
   const char *name;
   duk_c_function getter;
@@ -255,37 +245,9 @@ swig_duk_install_properties(
   }
 }
 
-/* creates the swig registry */
-SWIGINTERN void SWIG_duk_create_class_registry(duk_context *ctx)
-{
-  /* create the SWIG registry object */
-  duk_set_top(ctx, 0);
-  duk_push_global_stash(ctx);
-  duk_push_string(ctx, "registry");
-  duk_push_object(ctx);
-  duk_put_prop(ctx, -3);
-  /* The heap stash is at the top of the value stack now. */
-}
-
-
-/* gets the swig registry (or creates it) */
-SWIGINTERN void SWIG_duk_get_class_registry(duk_context *ctx) {
-  duk_set_top(ctx, 0);
-  duk_push_global_stash(ctx);
-  duk_get_prop_string(ctx, -1, "registry");
-  if (!duk_is_object(ctx,-1))  /* not there */
-  {  /* must be first time, so add it */
-    duk_pop_n(ctx,1);  /* remove the result */
-    SWIG_duk_create_class_registry(ctx);
-    /* then get the class registry */
-    duk_get_prop_string(ctx, -1, "registry");
-  }
-}
-
 /* Helper function to get the classes prototype from the register */
 SWIGINTERN void SWIG_duk_get_class_prototype(duk_context *ctx,const char *cname)
 {
-  SWIG_duk_get_class_registry(ctx);  /* get the registry */
   duk_get_prop_string(ctx, -1, cname);  /* get the name */
 }
 
