@@ -49,31 +49,6 @@ typedef struct {
   duk_c_function setter;
 } swig_duk_property;
 
-struct swig_duk_class;
-/* Can be used to create namespaces. */
-typedef struct swig_duk_namespace {
-  const char *name;
-  duk_function_list_entry *ns_methods;
-  swig_duk_property *ns_properties;
-  swig_duk_const_info *ns_constants;
-  struct swig_duk_class **ns_classes;
-  struct swig_duk_namespace **ns_namespaces;
-} swig_duk_namespace;
-
-typedef struct swig_duk_class {
-  const char *name; /* Name that this class has in Duktape */
-  const char *fqname; /* Fully qualified name - Scope + class name */
-  swig_type_info   **type;
-  duk_c_function  constructor;
-  void (*destructor)(void *);
-  swig_duk_method   *methods;
-  swig_duk_property *properties;
-  swig_duk_namespace *cls_static;
-  swig_duk_method   *prototype;
-  struct swig_duk_class **bases;
-  const char **base_names;
-} swig_duk_class;
-
 /* this is the struct for wrapping all pointers in SwigDuk
 */
 typedef struct {
@@ -319,29 +294,6 @@ SWIGINTERN void SWIG_duk_get_class_prototype(duk_context *ctx,const char *cname)
  * Class/structure conversion fns
  * ----------------------------------------------------------------------------- */
 
-/* helper to add prototype to new duk object */
-SWIGINTERN void SWIG_duk_AddPrototype(duk_context *ctx,swig_type_info *type)
-{
-  #ifdef SWIGRUNTIME_DEBUG
-  printf("Adding prototype!\n");
-  #endif
-  if (type->clientdata)  /* there is clientdata: so add the prototype */
-  {
-    #ifdef SWIGRUNTIME_DEBUG
-    printf("Adding prototype %s\n", ((swig_duk_class*)type->clientdata)->fqname);
-    #endif
-    SWIG_duk_get_class_prototype(ctx,((swig_duk_class*)(type->clientdata))->fqname);
-    if (duk_is_object(ctx,-1)) {
-      // FIXME
-      duk_set_prototype(ctx,-2);
-    }
-    else
-    {
-      duk_pop_n(ctx,1);
-    }
-  }
-}
-
 /* pushes a new userdata buffer into the duk stack */
 SWIGRUNTIME duk_ret_t SWIG_duk_NewPointerObj(duk_context *ctx,void *ptr,swig_type_info *type,bool own)
 {
@@ -358,7 +310,6 @@ SWIGRUNTIME duk_ret_t SWIG_duk_NewPointerObj(duk_context *ctx,void *ptr,swig_typ
   usr->ptr=ptr;  /* set the ptr */
   usr->type=type;
   usr->own=own;
-  //SWIG_duk_AddPrototype(ctx,type); /* add prototype */
   return 1;
 }
 
@@ -377,8 +328,13 @@ SWIGRUNTIME int SWIG_duk_ConvertPtr(duk_context *ctx, duk_idx_t idx,void **ptr,s
     *ptr=NULL;
     return SWIG_OK;
   }
-  usr=(swig_duk_userdata*)duk_to_fixed_buffer(ctx, idx, &sz);  /* get data */
-  duk_pop_n(ctx, 2); /* clean up the stack */
+  if (duk_get_prop_string(ctx, idx, "\xFFprivate")) {
+    #ifdef SWIGRUNTIME_DEBUG
+    printf("ConvertPtr found a stash!\n");
+    #endif
+    usr=(swig_duk_userdata*)duk_to_fixed_buffer(ctx, -1, &sz);  /* get data */
+    duk_pop_n(ctx, 1); /* clean up the stack */
+  }
   if (usr) {
     if (flags & SWIG_POINTER_DISOWN) {
       /* must disown the object */
@@ -396,6 +352,8 @@ SWIGRUNTIME int SWIG_duk_ConvertPtr(duk_context *ctx, duk_idx_t idx,void **ptr,s
       assert(!newmemory); /* newmemory handling not yet implemented */
       return SWIG_OK;  /* ok */
     }
+  } else {
+    /* In this branch, we're almost certainly dealing with a Number. */  
   }
   return SWIG_ERROR;  /* error */
 }
