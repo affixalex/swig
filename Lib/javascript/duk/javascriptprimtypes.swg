@@ -169,7 +169,7 @@ SWIG_AsVal_dec(unsigned long long)(JSValueRef obj, unsigned long long *val)
   longVal = (unsigned long long) JSValueToNumber(ctx, obj, NULL);
 
   if(longVal < 0) {
-      return SWIG_OverflowError;
+    return SWIG_OverflowError;
   }
 
   if(val) *val = longVal;

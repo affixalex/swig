@@ -24,13 +24,10 @@ static duk_idx_t $jswrapper(duk_context *ctx)
   $jslocals
   $jscode
 
-  duk_push_this(ctx);
-  duk_push_string(ctx, "\xFFprivate");
-  SWIG_duk_NewPointerObj(ctx, result, SWIGTYPE_$jsmangledtype, SWIG_POINTER_OWN);  
-  duk_put_prop(ctx, -3);
+  duk_idx_t obj_idx = SWIG_duk_NewPointerObj(ctx, result, SWIGTYPE_$jsmangledtype, SWIG_POINTER_OWN);  
   
   duk_push_heapptr(ctx, SWIGTYPE_$jsmangledtype->clientdata);
-  duk_set_prototype(ctx, -2);
+  duk_set_prototype(ctx, obj_idx);
   
   return 1;
 }
@@ -93,10 +90,7 @@ static duk_ret_t $jswrapper(duk_context *ctx)
   $jslocals
   $jscode
 
-  duk_push_this(ctx);
-  duk_push_string(ctx, "\xFFprivate");
   SWIG_duk_NewPointerObj(ctx, result, SWIGTYPE_$jsmangledtype, SWIG_POINTER_OWN);  
-  duk_put_prop(ctx, -3);
   /* The 'this' binding is now at the stack top. */
   duk_push_heapptr(ctx, SWIGTYPE_$jsmangledtype->clientdata);
   duk_set_prototype(ctx, -2);
@@ -218,7 +212,11 @@ static duk_ret_t $jswrapper(duk_context *ctx)
 static duk_ret_t $jswrapper(duk_context *ctx)
 {
   /* FRAGMENT: js_setter */
-  
+
+  /* The value must be on the stack top at entry. */
+  duk_push_this(ctx);
+  void *thisObject = duk_get_heapptr(ctx, -1);
+
   $jslocals
   $jscode
 
@@ -244,6 +242,8 @@ static duk_ret_t $jswrapper(duk_context *ctx)
     duk_push_string(ctx, "Illegal numargs for $jswrapper. Expected $jsargcount");
     duk_throw(ctx);
   }
+
+  duk_push_this(ctx);
 
   $jslocals
   $jscode
